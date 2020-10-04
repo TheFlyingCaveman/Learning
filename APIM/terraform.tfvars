@@ -1,0 +1,5 @@
+resource_prefix = "joshesapimland"
+environment = "poc"
+location = "centralus"
+publisher_name = "JoshuaMiller.net"
+publisher_email = "no@JoshuaMiller.net"
