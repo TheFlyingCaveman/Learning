@@ -1,3 +1,38 @@
+resource "azurerm_application_insights" "fplan_api_ai" {
+  name                = "${local.full_prefix}-fplan-api-ai"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  application_type    = "other"
+}
+
+resource "azurerm_api_management_api" "funcapi" {
+  name                = "${local.full_prefix}-func"
+  resource_group_name = azurerm_resource_group.rg.name
+  api_management_name = azurerm_api_management.apim.name
+  revision            = "1"
+  display_name        = "Func API"
+  path                = "somefunc"
+  protocols           = ["https"]
+}
+
+resource "azurerm_api_management_logger" "funcapi_logger" {
+  name                = "funcapi-apimlogger"
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = azurerm_resource_group.rg.name
+
+  application_insights {
+    instrumentation_key = azurerm_application_insights.fplan_api_ai.instrumentation_key
+  }
+}
+
+resource "azurerm_api_management_api_diagnostic" "funcapi_diagnostic" {
+  identifier               = "applicationinsights"
+  resource_group_name      = azurerm_resource_group.rg.name
+  api_management_name      = azurerm_api_management.apim.name
+  api_name                 = azurerm_api_management_api.funcapi.name
+  api_management_logger_id = azurerm_api_management_logger.funcapi_logger.id
+}
+
 resource "azurerm_storage_account" "function_storage" {
   name                     = replace("${local.full_prefix}fsa", "-", "")
   resource_group_name      = azurerm_resource_group.rg.name
@@ -10,7 +45,7 @@ resource "azurerm_app_service_plan" "fplan" {
   name                = "${local.full_prefix}-fsa"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  kind = "functionapp"
+  kind                = "functionapp"
 
   sku {
     tier = "Dynamic"
@@ -30,5 +65,5 @@ resource "azurerm_function_app" "function" {
     ip_restriction {
       virtual_network_subnet_id = azurerm_subnet.sub_apim.id
     }
-  }  
+  }
 }

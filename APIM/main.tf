@@ -26,13 +26,15 @@ resource "azurerm_api_management" "apim" {
 
   security {
     enable_backend_ssl30  = false
-    enable_frontend_ssl30 = true
+    enable_frontend_ssl30 = false
   }
 
-#   virtual_network_type = "External"
-#   virtual_network_configuration {
-#     subnet_id = azurerm_subnet.sub_apim.id
-#   }
+  # Changing this will destroy the entire APIM instance. Be very careful.
+  virtual_network_type = "External"
+  virtual_network_configuration {
+    subnet_id = azurerm_subnet.sub_apim.id
+  }
+  # Changing this will destroy the entire APIM instance. Be very careful.
 
   policy {
     xml_content = <<XML
