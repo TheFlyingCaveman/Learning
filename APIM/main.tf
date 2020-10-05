@@ -25,12 +25,13 @@ resource "azurerm_api_management" "apim" {
   }
 
   security {
-    enable_backend_ssl30 = false
+    enable_backend_ssl30  = false
     enable_frontend_ssl30 = true
   }
 
+#   virtual_network_type = "External"
 #   virtual_network_configuration {
-#       subnet_id = 
+#     subnet_id = azurerm_subnet.sub_apim.id
 #   }
 
   policy {
