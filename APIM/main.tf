@@ -3,7 +3,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = var.resource_prefix
+  name     = "${local.full_prefix}-rg"
   location = var.location
 }
 
@@ -29,11 +29,16 @@ resource "azurerm_api_management" "apim" {
     enable_frontend_ssl30 = false
   }
 
+  # While the benefits of forcing traffic over the Azure backbone is nice,
+  # and sometimes necessary, it can only be done at the Premium APIM tier.
+  # As such, one really has to understand if their applications need 
+  # such benefits, as the Premium APIM tier is orders of magnitude more
+  # expensive than lower tiers.
   # Changing this will destroy the entire APIM instance. Be very careful.
-  virtual_network_type = "External"
-  virtual_network_configuration {
-    subnet_id = azurerm_subnet.sub_apim.id
-  }
+  # virtual_network_type = "External"
+  # virtual_network_configuration {
+  #   subnet_id = azurerm_subnet.sub_apim.id
+  # }
   # Changing this will destroy the entire APIM instance. Be very careful.
 
   policy {
