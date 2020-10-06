@@ -6,13 +6,14 @@ resource "azurerm_application_insights" "fplan_api_ai" {
 }
 
 resource "azurerm_api_management_api" "funcapi" {
-  name                = "${local.full_prefix}-func"
-  resource_group_name = azurerm_resource_group.rg.name
-  api_management_name = azurerm_api_management.apim.name
-  revision            = "1"
-  display_name        = "Func API"
-  path                = "somefunc"
-  protocols           = ["https"]
+  name                  = "${local.full_prefix}-func"
+  resource_group_name   = azurerm_resource_group.rg.name
+  api_management_name   = azurerm_api_management.apim.name
+  revision              = "1"
+  display_name          = "Func API"
+  path                  = "somefunc"
+  protocols             = ["https"]
+  subscription_required = true
 }
 
 resource "azurerm_api_management_logger" "funcapi_logger" {
@@ -63,7 +64,19 @@ resource "azurerm_function_app" "function" {
 
   site_config {
     ip_restriction {
+      name                      = "Allow APIM subnet"
       virtual_network_subnet_id = azurerm_subnet.sub_apim.id
+      priority                  = 100
+    }
+
+    dynamic "ip_restriction" {
+      for_each = azurerm_api_management.apim.public_ip_addresses
+
+      content {
+        name       = "Allow APIM Public IP ${ip_restriction.key}"
+        ip_address = "${ip_restriction.value}/32"
+        priority   = 1 + ip_restriction.key
+      }
     }
   }
 }
