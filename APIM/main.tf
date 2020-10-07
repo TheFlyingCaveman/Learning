@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 locals {
   full_prefix = "${var.resource_prefix}-${var.environment}"
 }

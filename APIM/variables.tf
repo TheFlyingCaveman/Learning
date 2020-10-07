@@ -19,3 +19,22 @@ variable "publisher_name" {
 variable "publisher_email" {
     type = string
 }
+
+variable "app_service_plan_size" {
+    type = string
+    description = "The SKU size for the App Service Plan"    
+}
+
+variable "app_service_plan_tier" {
+    type = string
+    description = "The SKU tier for the App Service Plan"    
+}
+
+variable "hybrid_connections" {
+  type = list(object({
+    hostname = string
+    port = number
+    name = string
+  }))
+  default = []
+}
