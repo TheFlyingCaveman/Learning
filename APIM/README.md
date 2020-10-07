@@ -11,3 +11,14 @@ I may comment out entire files to test out different concepts and save money. I 
 * main.tf --> contains the main APIM resource and resource group
 * passthroughandfunction.tf --> contains a passthrough and certain policies playing around with rate limiting, as I am exceptionally paranoid about exposing a Consumption based Function without any sort of front end control. I don't want to induce massive costs due to one of my friends playing around with my API, after all 🙃
 * backend.tf, provider.tf, terraform.tfvars, and variables.tf are self explanatory by their names.
+
+## Configuring Terraform Cloud
+
+From [the documentation](https://www.terraform.io/docs/providers/azurerm/guides/service_principal_client_secret.html#configuring-the-service-principal-in-terraform), the following `Environment Variables` values can be set:
+
+```sh
+ARM_CLIENT_ID="00000000-0000-0000-0000-000000000000"
+ARM_CLIENT_SECRET="00000000-0000-0000-0000-000000000000"
+ARM_SUBSCRIPTION_ID="00000000-0000-0000-0000-000000000000"
+ARM_TENANT_ID="00000000-0000-0000-0000-000000000000"
+```
