@@ -1,6 +1,6 @@
 locals {
   count_of_hybrid_connections = length(var.hybrid_connections)
-  subscription_id = data.azurerm_client_config.current.subscription_id
+  subscription_id             = data.azurerm_client_config.current.subscription_id
 }
 
 resource "azurerm_application_insights" "ai" {
@@ -84,59 +84,46 @@ resource "azurerm_relay_hybrid_connection" "hybrid_connection" {
 
 # Hybrid Connection Policy needed for HybridConnectionManager to function properly
 resource "null_resource" "hybrid_connection_policy_send" {
-  count                = local.count_of_hybrid_connections  
-  provisioner "local-exec" {    
+  count = local.count_of_hybrid_connections
+  provisioner "local-exec" {
     command = "az relay hyco authorization-rule create --subscription ${local.subscription_id} -g ${azurerm_resource_group.rg.name} --namespace-name ${azurerm_relay_namespace.relay.name} --hybrid-connection-name ${azurerm_relay_hybrid_connection.hybrid_connection[count.index].name} -n defaultSender --rights Send"
   }
 }
 
 # Hybrid Connection Policy needed for HybridConnectionManager to function properly
 resource "null_resource" "hybrid_connection_policy_listen" {
-  count                = local.count_of_hybrid_connections  
-  provisioner "local-exec" {    
+  count = local.count_of_hybrid_connections
+  provisioner "local-exec" {
     command = "az relay hyco authorization-rule create --subscription ${local.subscription_id} -g ${azurerm_resource_group.rg.name} --namespace-name ${azurerm_relay_namespace.relay.name} --hybrid-connection-name ${azurerm_relay_hybrid_connection.hybrid_connection[count.index].name} -n defaultListener --rights Listen"
   }
 }
 
-# resource "null_resource" "relay_policy_send" {  
-#   provisioner "local-exec" {    
-#     command = "az relay namespace authorization-rule create --subscription ${var.subscription_id} -g ${azurerm_resource_group.rg.name} --namespace-name ${azurerm_relay_namespace.relay.name} -n defaultSender --rights Send"
-#     environment = {      
-#       AZURE_TENANT_ID=var.terraform_tenant_id
-#       AZURE_CLIENT_ID=var.terraform_client_id
-#       AZURE_CLIENT_SECRET=var.terraform_client_secret
-#     }
-#   }
-#   # provisioner "local-exec" {
-#   #   when        = destroy    
-#   #   command = "az relay hyco authorization-rule delete -g ${azurerm_resource_group.rg.name} --namespace-name ${azurerm_relay_namespace.relay.name} --hybrid-connection-name ${azurerm_relay_hybrid_connection.hybrid_connection[count.index].name} -n defaultSend"
-#   #   environment = {
-#   #     AZURE_SUBSCRIPTION_ID=var.subscription_id
-#   #     AZURE_CLIENT_ID=var.client_id
-#   #     AZURE_CLIENT_SECRET=var.client_secret
-#   #   }
-#   # }
-# }
+# Needed for AzureRM to work when setting the app_hybrid_connection, as azurerm_app_service_hybrid_connection incorrectly checks the existance of a key on the Relay instead
+# of on the HC itself. 
+resource "null_resource" "relay_policy_send" {
+  provisioner "local-exec" {
+    command = "az relay namespace authorization-rule create --subscription ${local.subscription_id} -g ${azurerm_resource_group.rg.name} --namespace-name ${azurerm_relay_namespace.relay.name} -n defaultSender --rights Send"
+  }
+}
 
-# resource "null_resource" "relay_policy_listen" {  
-#   provisioner "local-exec" {
-#     command = "az relay namespace authorization-rule create --subscription ${var.subscription_id} -g ${azurerm_resource_group.rg.name} --namespace-name ${azurerm_relay_namespace.relay.name} -n defaultListener --rights Listen"
-#     environment = {      
-#       AZURE_TENANT_ID=var.terraform_tenant_id
-#       AZURE_CLIENT_ID=var.terraform_client_id
-#       AZURE_CLIENT_SECRET=var.terraform_client_secret
-#     }
-#   }
-# }
+resource "azurerm_app_service_hybrid_connection" "app_hybrid_connection" {
+  count               = local.count_of_hybrid_connections
+  depends_on          = [null_resource.hybrid_connection_policy_send, null_resource.hybrid_connection_policy_listen, null_resource.relay_policy_send]
+  app_service_name    = azurerm_app_service.app.name
+  resource_group_name = azurerm_resource_group.rg.name
+  relay_id            = azurerm_relay_hybrid_connection.hybrid_connection[count.index].id
+  hostname            = var.hybrid_connections[count.index].hostname
+  port                = var.hybrid_connections[count.index].port
+  # Terraform does not yet have the ability to nicely create Shared Access Policy keys for Relay :(
+  send_key_name       = "defaultSender"
+}
 
-# resource "azurerm_app_service_hybrid_connection" "app_hybrid_connection" {  
-#   count               = local.count_of_hybrid_connections
-#   # depends_on          = [null_resource.relay_policy_send, null_resource.relay_policy_listen]
-#   app_service_name    = azurerm_app_service.app.name
-#   resource_group_name = azurerm_resource_group.rg.name    
-#   relay_id            = azurerm_relay_hybrid_connection.hybrid_connection[count.index].id
-#   hostname            = var.hybrid_connections[count.index].hostname
-#   port                = var.hybrid_connections[count.index].port
-#   # Terraform does not yet have the ability to nicely create Shared Access Policy keys for Relay :(
-#   # send_key_name       = "defaultSender"
-# }
+# There is a bug in the AzureRM Terraform provider where the sendKey value does not actually get set (see BugNotes.md)
+# This causes the key to be swapped, forcing it to be set and valid
+resource "null_resource" "hybrid_connection_key" {
+  # Forcing it to occur after the App HCs are made as depends on does not work on "counted" resources alone
+  count = length(azurerm_app_service_hybrid_connection.app_hybrid_connection)
+  provisioner "local-exec" {
+    command = "az appservice hybrid-connection set-key --subscription ${local.subscription_id} -g ${azurerm_resource_group.rg.name} --plan ${azurerm_app_service_plan.plan.name} --namespace  ${azurerm_relay_namespace.relay.name} --hybrid-connection ${azurerm_relay_hybrid_connection.hybrid_connection[count.index].name} --key-type primary"
+  }
+}
