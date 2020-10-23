@@ -1,0 +1,8 @@
+.terraform
+*.lock*
+*.tfplan
+*.pem
+*tfstate*
+
+# I don't want to expose my own IP Address :)
+terraform.tfvars
