@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo echo \<\!--$(date)--\> >> /var/www/html/index.html
+sudo echo \<\!--$(date)--\> >> /var/www/html/index.html 
