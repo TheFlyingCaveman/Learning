@@ -1,3 +1,17 @@
+## Development
+
+### Terraform
+
+I have committed my backend config which uses Terraform Cloud, please delete it if you do not wish to use Terraform Cloud.
+
+```sh
+cd infrastructure
+terraform plan -out now.tfplan
+terraform apply now.tfplan
+```
+
+### Scripts I found useful for some reason
+
 ```sh
 ssh -i "deployer-one.pem" ubuntu@<EC2InstanceDNS>
 ```
