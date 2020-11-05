@@ -8,11 +8,16 @@ trigger:
 
 pr: none
 
+# This is just an example, there would most likely be other steps involved, like variable 
+# substitution, file zipping, and pre-release approvals (possibly).
 steps:
-- task: PowerShell@2
+- task: CodeDeployDeployApplication@1
+  displayName: 'Deploy with CodeDeploy: TestingAwsCodeDeploy'
   inputs:
-    targetType: 'inline'
-    script: |
-      # Write your PowerShell commands here.
-      
-      Write-Host "Hello World"
+    awsCredentials: 'AWS Code Deploy'
+    regionName: 'us-east-1'
+    applicationName: TestingAwsCodeDeploy
+    deploymentGroupName: TestingAgain
+    revisionBundle: '$(System.DefaultWorkingDirectory)/aws/codedeploy/app'
+    bucketName: testingcodedeploy1245
+    fileExistsBehavior: OVERWRITE
