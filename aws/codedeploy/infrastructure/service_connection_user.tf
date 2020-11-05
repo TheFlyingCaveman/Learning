@@ -21,7 +21,8 @@ resource "aws_iam_group_policy_attachment" "codedeploygroup_codedeploy" {
 resource "aws_iam_user" "codedeploy" {
   name = "AzureDevOps_Service_Connection"
   path = "/testing_codedeploy/"
-
+  # TODO: do not leave this in for anything but PoC work!
+  force_destroy = true
   tags = {
     usage = "Azure DevOps"
   }
