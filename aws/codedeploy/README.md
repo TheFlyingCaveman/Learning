@@ -61,3 +61,4 @@ If deployment seems to be stuck on BlockTraffic, it may be due to a behavior des
 * Public EC2 instances in a subnet: https://hands-on.cloud/terraform-recipe-managing-aws-vpc-creating-public-subnet/
 * Hooks Reference: https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-server
 * When do Files get copied in AppSpec (during Install): https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-files.html
+* The only course you'll need: https://app.pluralsight.com/library/courses/deploying-code-aws-codedeploy
