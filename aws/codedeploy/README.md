@@ -20,7 +20,29 @@ ssh -i "deployer-one.pem" ubuntu@<EC2InstanceDNS>
 sudo apt-get update -y && sudo apt-get install nodejs -y && curl -o server.js https://gist.githubusercontent.com/JoshuaTheMiller/5ffbe44400922abceba1e4f1bfc657cb/raw/2f735081d9ad24e6b6ef57e46f02ce1f5ff795dc/server.js && node server.js
 ```
 
-## Delay on Deploy?
+## Gotchyas
+
+### TF Planning during Deployment
+
+If `terraform plan` is ran during a Deployment that is able to deregister EC2 instances from a Load Balancer, Terraform will think a connection is missing, and will plan for it to be recreated. Doing this will disrupt the deployment process, and it could cause unintended side effects (such as causing traffic to be routed to a bad EC2 instance).
+
+```sh
++ create
+
+Terraform will perform the following actions:
+
+# aws_lb_target_group_attachment.group[1] will be created
++ resource "aws_lb_target_group_attachment" "group" {
+    + id               = (known after apply)
+    + port             = 80
+    + target_group_arn = "arn:aws:elasticloadbalancing:us-east-1:216040693275:targetgroup/tf-example-lb-tg/3de1e6856393cd67"
+    + target_id        = "i-00b76a890af6185ac"
+}
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+```
+
+### Deployments taking forever?
 
 If deployment seems to be stuck on BlockTraffic, it may be due to a behavior designed to save the user experience- deregistration delays:
 
