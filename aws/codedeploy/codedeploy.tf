@@ -1,58 +1,86 @@
-# resource "aws_codedeploy_deployment_config" "foo" {
-#   deployment_config_name = "test-deployment-config"
+resource "aws_codedeploy_app" "app" {
+  compute_platform = "Server"
+  name             = "TestingAwsCodeDeploy"
+}
 
-#   minimum_healthy_hosts {
-#     type  = "HOST_COUNT"
-#     value = 2
-#   }
-# }
+resource "aws_iam_role" "codedeploy_service_role" {
+  name        = "Service-Role-CodeDeploy-EC2"
+  path        = "/"
+  description = "Allows CodeDeploy to call AWS services such as Auto Scaling on your behalf."
 
-# resource "aws_codedeploy_deployment_group" "foo" {
-#   app_name               = aws_codedeploy_app.foo_app.name
-#   deployment_group_name  = "bar"
-#   service_role_arn       = aws_iam_role.foo_role.arn
-#   deployment_config_name = aws_codedeploy_deployment_config.foo.id
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "codedeploy.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
 
-#   ec2_tag_filter {
-#     key   = "filterkey"
-#     type  = "KEY_AND_VALUE"
-#     value = "filtervalue"
-#   }
+resource "aws_iam_role_policy_attachment" "codedeploy_codedeployrole" {
+  role       = aws_iam_role.codedeploy_service_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+}
 
-#   trigger_configuration {
-#     trigger_events     = ["DeploymentFailure"]
-#     trigger_name       = "foo-trigger"
-#     trigger_target_arn = "foo-topic-arn"
-#   }
+resource "aws_codedeploy_deployment_group" "group" {
+  app_name               = aws_codedeploy_app.app.name
+  deployment_group_name  = "TestingAgain"
+  service_role_arn       = aws_iam_role.codedeploy_service_role.arn
+  deployment_config_name = "CodeDeployDefault.HalfAtATime"
 
-#   auto_rollback_configuration {
-#     enabled = true
-#     events  = ["DEPLOYMENT_FAILURE"]
-#   }
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "IN_PLACE"
+  }
 
-#   alarm_configuration {
-#     alarms  = ["my-alarm-name"]
-#     enabled = true
-#   }
-# }
+  load_balancer_info {
+    target_group_info {
+      name = aws_lb_target_group.test.name
+    }
+  }
+
+  ec2_tag_set {
+    ec2_tag_filter {
+      key   = "Environment"
+      type  = "KEY_AND_VALUE"
+      value = "Dev"
+    }
+
+    ec2_tag_filter {
+      key   = "Name"
+      type  = "KEY_AND_VALUE"
+      value = "TestingCodeDeploy"
+    }
+  }
+
+}
 
 resource "aws_s3_bucket" "onebucket" {
   bucket = "testingcodedeploy1245"
   versioning {
     enabled = true
   }
+  # TODO: Don't leave this in for production use cases
   force_destroy = true
   tags = {
     Name        = "CodeDeployBucket"
     Environment = "Test"
   }
   object_lock_configuration {
-      object_lock_enabled = "Enabled"
-      rule {
-          default_retention {
-              mode = "GOVERNANCE"
-              days = 45
-          }
+    object_lock_enabled = "Enabled"
+    rule {
+      default_retention {
+        mode = "GOVERNANCE"
+        days = 45
       }
+    }
   }
 }
