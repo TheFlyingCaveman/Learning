@@ -259,14 +259,3 @@ resource "aws_lb_listener" "test" {
     target_group_arn = aws_lb_target_group.test.arn
   }
 }
-
-# resource "aws_s3_bucket" "onebucket" {
-#   bucket = "testingcodedeploy1245"
-#   versioning {
-#     enabled = true
-#   }
-#   tags = {
-#     Name        = "Bucket1"
-#     Environment = "Test"
-#   }
-# }

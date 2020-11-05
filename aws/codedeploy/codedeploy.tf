@@ -35,3 +35,24 @@
 #     enabled = true
 #   }
 # }
+
+resource "aws_s3_bucket" "onebucket" {
+  bucket = "testingcodedeploy1245"
+  versioning {
+    enabled = true
+  }
+  force_destroy = true
+  tags = {
+    Name        = "CodeDeployBucket"
+    Environment = "Test"
+  }
+  object_lock_configuration {
+      object_lock_enabled = "Enabled"
+      rule {
+          default_retention {
+              mode = "GOVERNANCE"
+              days = 45
+          }
+      }
+  }
+}
