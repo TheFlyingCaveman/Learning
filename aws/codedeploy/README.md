@@ -1,3 +1,13 @@
+<div align="center">
+
+# AWS Code Deploy - Full Sample
+
+*The following badges may be invalid, as I typically tear down resources after I am done with them*
+
+[![Build Status](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_apis/build/status/Code%20Deploy%20Example?branchName=main)](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build/latest?definitionId=2&branchName=main) [![Site Badge](https://img.shields.io/badge/Sanple-Site-orange)][loadBalancerLink]
+
+</div>
+
 ## Development
 
 ### Terraform
@@ -62,3 +72,8 @@ If deployment seems to be stuck on BlockTraffic, it may be due to a behavior des
 * Hooks Reference: https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-hooks.html#appspec-hooks-server
 * When do Files get copied in AppSpec (during Install): https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file-structure-files.html
 * The only course you'll need: https://app.pluralsight.com/library/courses/deploying-code-aws-codedeploy
+
+ 
+
+
+[loadBalancerLink]: http://test-lb-tf-1983143281.us-east-1.elb.amazonaws.com
