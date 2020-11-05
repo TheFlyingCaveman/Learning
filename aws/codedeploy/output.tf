@@ -7,5 +7,5 @@ output "instance_public_ip" {
 }
 
 output "lb_dns" {
-  value = aws_lb.main.dns_name
+  value = "http://${aws_lb.main.dns_name}"
 }
