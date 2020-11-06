@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+  <style>
+    .container {
+      text-align: center;
+    }
+
+    .icon {
+      border-radius: 50%;
+    }
+
+    html {
+      background-color: lightgray;
+    }
+
+    @keyframes shaking {
+      0%, 5%, 10%, 15%, 20% {
+        transform: rotate(0deg)
+      }
+
+      2.5%, 12.5% {
+        transform: rotate(-10deg)
+      }
+
+      7.5%, 17.5% {
+        transform: rotate(10deg)
+      }
+
+      21%, 100% {
+        transform: rotate(0deg)
+      }
+    }
+
+    .shake {
+      animation-name: shaking;
+      animation-duration: 2s;      
+      animation-iteration-count: infinite;
+      /* linear | ease | ease-in | ease-out | ease-in-out */
+      animation-timing-function: linear;
+      transform-origin: left bottom;
+    }
+
+    .tada {
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <img class="icon" src="assets/icon.svg" alt="Some icon that I liked for this page. Not important.">
+    <h1>This was deployed using AWS CodeDeploy! <span class="tada shake">🎉</span><span class="tada shake">🎉</span></h1>
+    <a href="https://github.com/JoshuaTheMiller/Experiments/tree/main/aws/codedeploy">Example Repository</a>
+  </div>
+</body>
+
+</html>
