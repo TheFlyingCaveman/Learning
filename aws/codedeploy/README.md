@@ -4,7 +4,7 @@
 
 *The following badges may be invalid, as I typically tear down resources after I am done with them*
 
-[![Build Status](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_apis/build/status/Code%20Deploy%20Example?branchName=main)](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build/latest?definitionId=2&branchName=main) [![Site Badge](https://img.shields.io/badge/Sanple-Site-orange)][loadBalancerLink]
+[![Build Status](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_apis/build/status/Code%20Deploy%20Example?branchName=main)](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build/latest?definitionId=2&branchName=main) [![Site Badge](https://img.shields.io/badge/Sample-Site-orange)][loadBalancerLink]
 
 </div>
 
