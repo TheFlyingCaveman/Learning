@@ -4,56 +4,80 @@
 <head>
   <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
   <style>
+    @font-face {
+      font-family: roboto;
+      src: url(assets/Roboto-Regular.ttf);
+    }
+
+    html {
+      background-color: #D1D2D2;
+      font-family: roboto;
+    }
+
     .container {
       text-align: center;
     }
 
-    .icon {
-      border-radius: 50%;
-    }
-
-    html {
-      background-color: lightgray;
-    }
-
     @keyframes shaking {
-      0%, 5%, 10%, 15%, 20% {
+
+      0%,
+      5%,
+      10%,
+      15%,
+      20% {
         transform: rotate(0deg)
       }
 
-      2.5%, 12.5% {
+      2.5%,
+      12.5% {
         transform: rotate(-10deg)
       }
 
-      7.5%, 17.5% {
+      7.5%,
+      17.5% {
         transform: rotate(10deg)
       }
 
-      21%, 100% {
+      21%,
+      100% {
         transform: rotate(0deg)
       }
     }
 
     .shake {
       animation-name: shaking;
-      animation-duration: 2s;      
+      animation-duration: 2s;
       animation-iteration-count: infinite;
       /* linear | ease | ease-in | ease-out | ease-in-out */
       animation-timing-function: linear;
       transform-origin: left bottom;
     }
 
-    .tada {
+    .icon {
+      height: 3em;
+    }
+
+    .inline {
       display: inline-block;
+    }
+
+    .flip-horizontal {
+      transform: scaleX(-1);
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <img class="icon" src="assets/icon.svg" alt="Some icon that I liked for this page. Not important.">
-    <h1>This was deployed using AWS CodeDeploy! <span class="tada shake">🎉</span><span class="tada shake">🎉</span></h1>
-    <a href="https://github.com/JoshuaTheMiller/Experiments/tree/main/aws/codedeploy">Example Repository</a>
+    <img src="assets/icon.svg" alt="Some icon that I liked for this page. Not important.">
+    <h1>
+      <div class="inline flip-horizontal">
+        <div class="shake">🎉</div>
+      </div> This was deployed using AWS CodeDeploy! <div class="inline">
+        <div class="shake">🎉</div>
+      </div>
+    </h1>
+    <p>Find the source on <a href="https://github.com/JoshuaTheMiller/Experiments/tree/main/aws/codedeploy">GitHub</a></p>
   </div>
 </body>
 
