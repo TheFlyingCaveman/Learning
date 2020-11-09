@@ -10,5 +10,7 @@ variable "lb" {
   type = object({
     dns_name : string
     zone_id : string
+    aws_lb_arn: string
+    aws_lb_target_group_arn: string
   })
 }

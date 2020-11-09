@@ -76,4 +76,4 @@ If deployment seems to be stuck on BlockTraffic, it may be due to a behavior des
  
 
 
-[loadBalancerLink]: http://codedeploy.experiments.joshuamiller.net/
+[loadBalancerLink]: https://codedeploy.experiments.joshuamiller.net/

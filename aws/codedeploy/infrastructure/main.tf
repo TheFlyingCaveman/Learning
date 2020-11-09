@@ -179,7 +179,7 @@ resource "aws_lb" "main" {
 
   // should have its own security group
   security_groups = [aws_security_group.allow_all.id]
-  subnets         = aws_subnet.public.*.id
+  subnets         = aws_subnet.public.*.id  
 }
 
 resource "aws_lb_target_group" "test" {
@@ -222,6 +222,8 @@ module "pretty_domain" {
   lb = {
     dns_name = aws_lb.main.dns_name
     zone_id = aws_lb.main.zone_id
+    aws_lb_arn = aws_lb.main.arn
+    aws_lb_target_group_arn = aws_lb_target_group.test.arn
   }
 }
 
