@@ -224,3 +224,16 @@ module "pretty_domain" {
     zone_id = aws_lb.main.zone_id
   }
 }
+
+module "service_connection_user" {
+  count = var.codedeploy_user_iam_object == null ? 0 : 1
+  source = "./service_connection_user"
+
+  codedeploy_user_iam_object = {
+    groupName : var.codedeploy_user_iam_object.groupName
+    userName : var.codedeploy_user_iam_object.userName
+    path : var.codedeploy_user_iam_object.path
+  }
+
+  force_destroy_items = var.force_destroy_items
+}
