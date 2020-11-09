@@ -8,6 +8,8 @@
 
 </div>
 
+![A Gif of the final deployed page](./docs/assets/FinalPage.gif)
+
 ## Development
 
 ### Terraform
