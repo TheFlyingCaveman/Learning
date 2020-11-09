@@ -152,7 +152,7 @@ resource "aws_iam_instance_profile" "codedeploy_profile" {
 resource "aws_instance" "web" {
   count                       = local.count_of_instances
   ami                         = data.aws_ami.ubuntu.id
-  instance_type               = "t2.micro"
+  instance_type               = "t3.nano"
   subnet_id                   = aws_subnet.public[(count.index % local.count_of_public_subnets)].id
   associate_public_ip_address = true
 

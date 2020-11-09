@@ -1,6 +1,6 @@
 codedeploy_user_iam_object = {
     groupName = "Testing_CodeDeploy_Access"
-    userName = "AzureDevOps_Service_Connection"
+    userName = "AzureDevOps_CodeDeploy_Service_Connection"
     path = "/testing_codedeploy/"
 }
 
