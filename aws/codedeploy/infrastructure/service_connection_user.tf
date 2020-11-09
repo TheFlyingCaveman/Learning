@@ -1,6 +1,6 @@
 resource "aws_iam_group" "codedeploygroup" {
-  name = "Testing_CodeDeploy_Access"
-  path = "/testing_codedeploy/"
+  name = var.codedeploy_user_iam_object.groupName
+  path = var.codedeploy_user_iam_object.path
 }
 
 resource "aws_iam_group_policy_attachment" "codedeploygroup_ec2" {
@@ -19,10 +19,9 @@ resource "aws_iam_group_policy_attachment" "codedeploygroup_codedeploy" {
 }
 
 resource "aws_iam_user" "codedeploy" {
-  name = "AzureDevOps_Service_Connection"
-  path = "/testing_codedeploy/"
-  # TODO: do not leave this in for anything but PoC work!
-  force_destroy = true
+  name          = var.codedeploy_user_iam_object.userName
+  path          = var.codedeploy_user_iam_object.path
+  force_destroy = var.force_destroy_items
   tags = {
     usage = "Azure DevOps"
   }

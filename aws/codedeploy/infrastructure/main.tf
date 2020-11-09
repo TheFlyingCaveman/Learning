@@ -149,53 +149,6 @@ resource "aws_iam_instance_profile" "codedeploy_profile" {
   role = aws_iam_role.codedeploy_ec2_role.name
 }
 
-# resource "aws_launch_configuration" "as_conf" {
-#   name                        = "web_config"
-#   image_id                    = data.aws_ami.ubuntu.id
-#   instance_type               = "t3.micro"
-#   associate_public_ip_address = true
-
-#   iam_instance_profile = aws_iam_instance_profile.codedeploy_profile.name
-
-#   key_name = module.key_pair.this_key_pair_key_name
-
-#   user_data = file("start.sh")
-
-#   security_groups = [
-#     aws_security_group.allow_all.id
-#   ]
-# }
-
-# resource "aws_autoscaling_group" "main" {
-#   name                 = "terraform-asg-main"
-#   launch_configuration = aws_launch_configuration.as_conf.name
-#   min_size             = 1
-#   max_size             = 2  
-
-#   tags = [
-#     {
-#       "key":"Name",
-#       "value":"TestingCodeDeploy",
-#       "propagate_at_launch" = true
-
-#     },
-#     {
-#       "key":"Environment",
-#       "value":"Dev",
-#       "propagate_at_launch" = true
-
-#     }
-#   ]
-
-#   target_group_arns = [aws_lb.main.arn]
-
-#   vpc_zone_identifier = aws_subnet.public.*.id
-
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
-
 resource "aws_instance" "web" {
   count                       = local.count_of_instances
   ami                         = data.aws_ami.ubuntu.id
