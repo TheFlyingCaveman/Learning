@@ -190,7 +190,7 @@ resource "aws_lb_target_group" "test" {
   vpc_id      = aws_vpc.main.id
 
   health_check {
-    timeout = 2
+    timeout  = 2
     interval = 5
   }
 }
@@ -210,5 +210,17 @@ resource "aws_lb_listener" "test" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.test.arn
+  }
+}
+
+module "pretty_domain" {
+  count = var.pretty_domain == null ? 0 : 1
+  source = "./pretty_domain"
+
+  aws_route53_zone_name   = var.pretty_domain.aws_route53_zone_name
+  aws_route53_record_name = var.pretty_domain.aws_route53_record_name
+  lb = {
+    dns_name = aws_lb.main.dns_name
+    zone_id = aws_lb.main.zone_id
   }
 }
