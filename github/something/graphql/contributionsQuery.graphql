@@ -1,0 +1,38 @@
+query($login: String!, $contributionsFrom: DateTime!) {
+  user(login: $login) {
+    contributionsCollection(from:$contributionsFrom) {
+      hasAnyRestrictedContributions
+      issueContributions(first:100) {
+        nodes {
+          issue {
+            url
+          }
+        }
+      }
+      pullRequestContributions(first:100) {
+        nodes {
+          pullRequest {
+            url
+          }
+        }
+      }
+			pullRequestReviewContributions(first:100) {
+        nodes {
+          pullRequest {
+            url
+          }
+        }
+      }
+      commitContributionsByRepository(maxRepositories: 25) {
+        repository{
+          url
+        }      
+        contributions(first:100) {
+          nodes {
+            commitCount            
+          }
+        }
+      }
+    }
+  }
+}

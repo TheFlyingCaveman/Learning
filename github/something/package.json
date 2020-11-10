@@ -1,0 +1,19 @@
+{
+  "name": "gilver",
+  "version": "1.0.0",
+  "description": "Gilver- GitHub Delver. Pulls contributions and other information related to a user!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "JoshuaTheMiller",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/auth": "^2.0.1",
+    "@octokit/graphql-schema": "^10.2.1",
+    "@octokit/request": "^5.4.10",
+    "dotenv": "^8.2.0",
+    "graphql.macro": "^1.4.2"
+  }
+}
