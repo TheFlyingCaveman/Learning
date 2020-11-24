@@ -1,0 +1,29 @@
+---
+title: default
+layout: default
+---
+<div class="card-group">
+    {% 
+        assign team_members = site.team_members
+        | where_exp: "item", "item.full_name != 'Put your name here'" 
+    %}
+    {% for team_member in team_members %}
+    <div class="col-sm-4">
+        <div class="card border-dark mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ team_member.full_name }} - {{ team_member.position }}</h5>
+                {% if team_member.summary %}
+                <div class="card-text">{{ team_member.summary | markdownify }}</div>
+                {% endif %}
+
+                <div class="btn-group" role="group" aria-label="More links">
+                    {% if team_member.personal_site %}
+                    <a href="{{ team_member.personal_site }}" class="btn btn-primary">Find me online</a>
+                    {% endif %}
+                    <a href="{{ team_member.url }}" class="btn btn-secondary">More...</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

@@ -1,0 +1,16 @@
+---
+layout: default
+---
+
+<h1></h1>
+<h2></h2>
+
+<div class="jumbotron">    
+    <h1 class="display-4">{{ page.full_name }} </h1>
+    <p class="lead">{{ page.position }} {% if page.email %}<span>- <a href="mailto: {{ page.email }}">{{ page.email }}</a></span>{% endif %}</p>
+    <hr class="my-4">
+    {{ content | markdownify }}
+    {% if page.personal_site %}
+    <a class="btn btn-primary btn-lg" href="{{ page.personal_site }}" role="button">Visit my site</a>
+    {% endif %}
+</div>
