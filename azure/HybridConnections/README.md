@@ -24,7 +24,7 @@ The "trick" alluded to is to simply log into the Kudu console and execute a cURL
 As this article is focused on a simple debugging trick for Azure App Service Hybrid Connections, the provisioning of resources will be *mostly* skipped over. If you want to follow along with the exact resources this article uses, please utilize the Deploy to Azure button provided below:
 
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJoshuaTheMiller%2FExperiments%2FhybridConnections%2Fazure%2FHybridConnections%2FHcExampleTemplate.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJoshuaTheMiller%2FExperiments%2Fmain%2Fazure%2FHybridConnections%2FHcExampleTemplate.json)
 
 ### Step 1 Kudu
 
