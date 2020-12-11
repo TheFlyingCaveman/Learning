@@ -1,0 +1,253 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resource_prefix": {
+            "type": "string",
+            "metadata": {
+                "description": "This value will be prepended to all resources created. For example, if you set this to FOOBAR, an AppService called FOOBAR_APP_UNIQUESTRING will be created."
+            }
+        },
+        "resource_location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for all resources. Defaults to the same location as the resource group."
+            }
+        }
+    },
+    "variables": {
+        "uniqueappend":"[uniqueString( resourceGroup().id, subscription().id)]",
+        "app_name":"[concat(parameters('resource_prefix'), 'APP', variables('uniqueappend'))]",
+        "servicebus_name":"[concat(toLower(parameters('resource_prefix')), 'sb', variables('uniqueappend'))]",
+        "appservice_plan_name":"[concat(parameters('resource_prefix'), '_PLAN_', variables('uniqueappend'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Relay/namespaces",
+            "apiVersion": "2018-01-01-preview",
+            "name": "[variables('servicebus_name')]",
+            "location": "[parameters('resource_location')]",
+            "sku": {
+                "name": "Standard",
+                "tier": "Standard"
+            },
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[variables('appservice_plan_name')]",
+            "location": "[parameters('resource_location')]",
+            "tags": {
+                "lifetime": "delete-asap"
+            },
+            "sku": {
+                "name": "B1",
+                "tier": "Basic",
+                "size": "B1",
+                "family": "B",
+                "capacity": 1
+            },
+            "kind": "app",
+            "properties": {
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            }
+        },
+        {
+            "type": "Microsoft.Relay/namespaces/AuthorizationRules",
+            "apiVersion": "2017-04-01",
+            "name": "[concat(variables('servicebus_name'), '/RootManageSharedAccessKey')]",
+            "location": "[parameters('resource_location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Relay/namespaces', variables('servicebus_name'))]"
+            ],
+            "properties": {
+                "rights": [
+                    "Listen",
+                    "Manage",
+                    "Send"
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Relay/namespaces/HybridConnections",
+            "apiVersion": "2017-04-01",
+            "name": "[concat(variables('servicebus_name'), '/localhosttest')]",
+            "location": "[parameters('resource_location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Relay/namespaces', variables('servicebus_name'))]"
+            ],
+            "properties": {
+                "requiresClientAuthorization": true,
+                "userMetadata": "[[{\"key\":\"endpoint\",\"value\":\"localhost:8080\"}]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[variables('app_name')]",
+            "location": "[parameters('resource_location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('appservice_plan_name'))]"
+            ],
+            "tags": {
+                "lifetime": "delete-asap"
+            },
+            "kind": "app",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(variables('app_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(variables('app_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appservice_plan_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "siteConfig": {},
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "hostNamesDisabled": false,
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": false,
+                "redundancyMode": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('app_name'), '/web')]",
+            "location": "[parameters('resource_location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('app_name'))]"
+            ],
+            "tags": {
+                "lifetime": "delete-asap"
+            },
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "httpLoggingEnabled": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$prefix-app",
+                "azureStorageAccounts": {},
+                "scmType": "None",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "reservedInstanceCount": 0
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2018-11-01",
+            "name": "[concat(variables('app_name'), '/', variables('app_name'), '.azurewebsites.net')]",
+            "location": "[parameters('resource_location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('app_name'))]"
+            ],
+            "properties": {
+                "siteName": "prefix-app",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Relay/namespaces/HybridConnections/authorizationRules",
+            "apiVersion": "2017-04-01",
+            "name": "[concat(variables('servicebus_name'), '/localhosttest/defaultListener')]",
+            "location": "[parameters('resource_location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Relay/namespaces/HybridConnections', variables('servicebus_name'), 'localhosttest')]",
+                "[resourceId('Microsoft.Relay/namespaces', variables('servicebus_name'))]"
+            ],
+            "properties": {
+                "rights": [
+                    "Listen"
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Relay/namespaces/HybridConnections/authorizationRules",
+            "apiVersion": "2017-04-01",
+            "name": "[concat(variables('servicebus_name'), '/localhosttest/defaultSender')]",
+            "location": "[parameters('resource_location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Relay/namespaces/HybridConnections', variables('servicebus_name'), 'localhosttest')]",
+                "[resourceId('Microsoft.Relay/namespaces', variables('servicebus_name'))]"
+            ],
+            "properties": {
+                "rights": [
+                    "Send"
+                ]
+            }
+        }
+    ]
+}
