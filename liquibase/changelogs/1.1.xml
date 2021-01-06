@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <includeAll path="changelogs/1.1/table_BigCorp_Departments_alters" />
-    <include file="changelogs/1.1/sproc_BigCorp_GetDepartments.sql" />
+    <includeAll path="1.1/table_BigCorp_Departments_alters" relativeToChangelogFile="true" />
+    <include file="1.1/sproc_BigCorp_GetDepartments.sql" relativeToChangelogFile="true" />
 </databaseChangeLog>
