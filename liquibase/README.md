@@ -6,6 +6,11 @@ The following are the notes I took and thoughts I had when playing around with L
 
 Important Thought: I had taken a stab at trying to propose that Liquibase be used in a manner similar to one I had used before (Development Practices below), but I believe there will be too many issues that I have not yet realized in doing so... Long story short, I advocate sticking with the proposed [Best Practices](https://docs.liquibase.com/concepts/bestpractices.html) file structure until you are confident/comfortable in your use of Liquibase. Long story short, be explicit about which changes are included, avoid using `<includeAll/>`.
 
+## Best Practices when using Liquibase Best Practices Folder Structure
+
+* Make a new minor version whenever an item has to be altered. Additions (Creates) can continue to be added to a specific minor version.
+* If anything were to introduce a BREAKING CHANGE (e.g. item deletion), a new major version should be created. Note: changing the functionality of a sproc can be considered a breaking change, depending on how it is done. It may be better to CREATE a new sproc altogether, and have your application code reference that new sproc.
+
 ## Best Practices
 
 Liquibase does support to approaches to change:
@@ -28,7 +33,6 @@ From the shear popularity of migration based database deployments, I'm going to 
 Run MYSQL in Docker
 ```ps1
 $rootPass="123456"
-$database="BigCorp"
 docker run --name=mysql1 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=$rootPass -d --network=mynetwork mysql/mysql-server:8.0
 ```
 
@@ -38,7 +42,7 @@ Setup MYSQL DB
 
 ```ps1
 docker exec -it mysql1 mysql -uroot -p
-CREATE DATABASE BigCorp;
+CREATE DATABASE liquibase;
 CREATE USER mysqldeployer;
 CREATE ROLE deployer;
 GRANT alter,create,delete,drop,index,insert,select,update,trigger,alter routine,create routine, execute, create temporary tables on *.* to 'deployer';
@@ -51,10 +55,10 @@ SET DEFAULT ROLE 'deployer' TO 'mysqldeployer';
 ```ps1
 $username="mysqldeployer"
 $url="mysql1"
-$database="BigCorp"
+$database="liquibase"
 $currentDirectory=(Get-Location).Path
 
-docker run --rm --network=mynetwork -v "//f/Cloud Storage/SourceControl/Experiments/liquibase:/liquibase/changelog" liquibase/liquibase --url="jdbc:mysql://${url}/${database}" --driver=com.mysql.jdbc.Driver --changeLogFile=./changelog.xml --username=$username --logLevel=debug update
+docker run --rm --network=mynetwork -v "//f/Cloud Storage/SourceControl/Experiments/liquibase:/liquibase/changelog" liquibase/liquibase --url="jdbc:mysql://${url}/${database}" --driver=com.mysql.jdbc.Driver --changeLogFile=./changelog-master.xml --username=$username --logLevel=debug update
 ```
 
 ### Windows
