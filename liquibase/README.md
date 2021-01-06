@@ -4,6 +4,8 @@ https://www.liquibase.org/
 
 The following are the notes I took and thoughts I had when playing around with Liquibase. 
 
+Important Thought: I had taken a stab at trying to propose that Liquibase be used in a manner similar to one I had used before (Development Practices below), but I believe there will be too many issues that I have not yet realized in doing so... Long story short, I advocate sticking with the proposed [Best Practices](https://docs.liquibase.com/concepts/bestpractices.html) file structure until you are confident/comfortable in your use of Liquibase. Long story short, be explicit about which changes are included, avoid using `<includeAll/>`.
+
 ## Best Practices
 
 Liquibase does support to approaches to change:
@@ -27,7 +29,6 @@ Run MYSQL in Docker
 ```ps1
 $rootPass="123456"
 $database="BigCorp"
-docker exec -it mysql1 mysql -uroot -p $rootPass
 docker run --name=mysql1 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=$rootPass -d --network=mynetwork mysql/mysql-server:8.0
 ```
 
@@ -40,7 +41,7 @@ docker exec -it mysql1 mysql -uroot -p
 CREATE DATABASE BigCorp;
 CREATE USER mysqldeployer;
 CREATE ROLE deployer;
-GRANT alter,create,delete,drop,index,insert,select,update,trigger,alter routine,create routine, execute, create temporary tables on BigCorp.* to 'deployer';
+GRANT alter,create,delete,drop,index,insert,select,update,trigger,alter routine,create routine, execute, create temporary tables on *.* to 'deployer';
 GRANT 'deployer' TO 'mysqldeployer';
 SET DEFAULT ROLE 'deployer' TO 'mysqldeployer';
 ```
@@ -53,9 +54,71 @@ $url="mysql1"
 $database="BigCorp"
 $currentDirectory=(Get-Location).Path
 
-docker run --rm --network=mynetwork -v "//f/Cloud Storage/SourceControl/Experiments/liquibase:/liquibase/changelog" liquibase/liquibase --url="jdbc:mysql://${url}/${database}" --driver=com.mysql.jdbc.Driver --changeLogFile=./dbchangelog.xml --username=$username --logLevel=debug update
+docker run --rm --network=mynetwork -v "//f/Cloud Storage/SourceControl/Experiments/liquibase:/liquibase/changelog" liquibase/liquibase --url="jdbc:mysql://${url}/${database}" --driver=com.mysql.jdbc.Driver --changeLogFile=./changelog.xml --username=$username --logLevel=debug update
 ```
 
 ### Windows
 
 Just run the installer... Will most likely have to create a container or machine image for eventual cloud deployments
+
+## Thoughts on Development Practices
+
+* Use a top level changelog file to include all files in a subfolder. 
+  * This is to eliminate the need to pass in a different `--changeLogFile` upon every run.
+  * As long as contributors follow best practices, and backwards/forwards compatibility, there should be no issues with this as there would never be a breaking change. Breaking changes would necessitate a slightly different strategy.
+* !! Avoid having separate top level files for environment. Strive to have all environments utilize the same process (at least, as much as possible)
+  * If items are specific to an environment, use [Contexts](https://docs.liquibase.com/concepts/advanced/contexts.html). Strive for a simplified environment approach: production and non-production. This should satisfy the need for non-production data that should never exist in production, and vice-versa. Arguably, test data generation can and should be accomplished by a different system. Using an external system would minimize, if not outright eliminate, the need for different environment Contexts.
+* AVOID using [runOnChange](https://docs.liquibase.com/concepts/advanced/runonchange.html), and prefer creating a new version/file of the item you want to change.
+  *  For example, `somesproc.sql`, `somesproc_0001.sql`, `somesproc_0002.sql`, etc. Each subsequent `somesproc_xxxx.sql` would contain ALTER statements. This mitigates problems caused by dropping and adding sprocs, etc.
+
+### Folder Structure
+
+```python for the highlighting that I want
+.
+.changelog.xml # The top level file that 
+./changelogs
+./changelogs/schema1 # DML should be divided by schema so as to promote
+./changelogs/schema2 # discoverability and good schema design practices
+./changelogs/schema2
+./legacy-changelogs # changelogs generated from an import should live here
+```
+
+`.changelog.xml` should look like the following to insure legacy materials are ran first:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <includeAll  path="legacy-changelogs"/> 
+    <includeAll  path="changelogs"/> 
+</databaseChangeLog>
+```
+
+?? For items under schemas, should we use folders to define types, or prepend the type to the filename?
+
+```python for the highlighting that I want
+.
+.changelog.xml # The top level file that 
+./changelogs
+./changelogs/schema1
+./changelogs/schema1/tables
+./changelogs/schema1/sprocs
+```
+
+**OR**
+
+```python for the highlighting that I want
+.
+.changelog.xml # The top level file that 
+./changelogs
+./changelogs/schema1
+./changelogs/schema1/table_sometable.sql
+./changelogs/schema1/table_sometable2.sql
+./changelogs/schema1/sproc_somesproc.sql
+```
+
+Going with the `folder structure` route so as to facilitate explicit ordering of how statements are executed. For example, it will make for an easier development experience if all User Defined Table Type changes are made before Sproc changes (generally, and if all changes being made are backwards/forwards compatible), as then if a Sproc depends on a UDTT, the UDTT will already exist when Liquibase executes.
+
+### Schema Practices
+
+* In general, schemas should be wholly contained within themselves
+* No foreign key references across schemas
