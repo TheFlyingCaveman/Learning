@@ -26,12 +26,19 @@ From the shear popularity of migration based database deployments, I'm going to 
 
 ## Setup
 
+### VS Code Extension
+
+```ps1
+code --install-extension cweijan.vscode-mysql-client2
+```
+
 ### MySQL on Docker
 
 !! Note! Adding containers to network to aid in discovery (try doing this without networking containers, and/or lookup how to HTTP GET from one container to another)
 
 Run MYSQL in Docker
 ```ps1
+docker network create mynetwork
 $rootPass="123456"
 docker run --name=mysql1 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=$rootPass -d --network=mynetwork mysql/mysql-server:8.0
 ```
@@ -57,8 +64,9 @@ $username="mysqldeployer"
 $url="mysql1"
 $database="liquibase"
 $currentDirectory=(Get-Location).Path
-
-docker run --rm --network=mynetwork -v "//f/Cloud Storage/SourceControl/Experiments/liquibase:/liquibase/changelog" liquibase/liquibase --url="jdbc:mysql://${url}/${database}" --driver=com.mysql.jdbc.Driver --changeLogFile=./changelog-master.xml --username=$username --logLevel=debug update
+# If you are seeing issues related to './changelog-master.xml' not found on Windows, make sure the drive is actually shared correctly with Docker.
+# If all else fails, try using 'Reset credentials' on the Shared Drives page of the Docker for Windows settings dialog.
+docker run --rm --network=mynetwork --mount type=bind,source=${currentDirectory},target=/liquibase/changelog,readonly liquibase/liquibase --url="jdbc:mysql://${url}/${database}" --driver=com.mysql.jdbc.Driver --changeLogFile=./changelog-master.xml --username=$username --logLevel=debug update
 ```
 
 ### Windows
