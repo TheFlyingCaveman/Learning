@@ -1,0 +1,45 @@
+# Schema: https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json
+
+trigger: none
+pr: none
+
+variables:
+  workingdirectory: '$(System.DefaultWorkingDirectory)/aws/codedeploy/infrastructure'
+  TF_CLI_CONFIG_FILE: $(terraformConfig.secureFilePath)
+
+steps:
+- task: TerraformInstaller@0
+  displayName: 'Install Terraform 0.13.4'
+  inputs:
+    terraformVersion: 0.13.4
+# Next two tasks were necessary to work with Terraform Cloud
+- task: DownloadSecureFile@1
+  displayName: 'Download Terraform Config'
+  name: terraformConfig
+  inputs:
+    secureFile: 'terraform-config'
+- task: PowerShell@2      
+  displayName: 'Terraform Init w/ Custom CLI Config'
+  inputs:
+    targetType: 'inline'
+    script: 'terraform init' 
+    pwsh: true
+    workingDirectory: '$(workingdirectory)'
+  env:
+    TF_CLI_CONFIG_FILE: $(terraformConfig.secureFilePath)
+- task: TerraformTaskV1@0
+  displayName: 'Terraform Plan'
+  inputs:
+    provider: aws
+    command: plan
+    workingDirectory: '$(workingdirectory)'
+    commandOptions: '-out now.tfplan -var-file joshvars.tfvars'
+    environmentServiceNameAWS: trfc
+- task: TerraformTaskV1@0
+  displayName: 'Terraform Apply'
+  inputs:
+    provider: aws
+    command: apply
+    workingDirectory: '$(workingdirectory)'
+    commandOptions: now.tfplan
+    environmentServiceNameAWS: trfc
