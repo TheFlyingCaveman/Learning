@@ -8,7 +8,7 @@ variables:
   TF_CLI_CONFIG_FILE: $(terraformConfig.secureFilePath)
 
 stages:
-- stage: Deploy
+- stage: DeployInfrastructure
   jobs:
   - job: Deploy
     steps:
@@ -47,6 +47,20 @@ stages:
         workingDirectory: '$(workingdirectory)'
         commandOptions: now.tfplan
         environmentServiceNameAWS: trfc
+- stage: DeployApplication
+  jobs:
+  - job: DeployApp
+    steps:
+    - task: CodeDeployDeployApplication@1
+      displayName: 'Deploy with CodeDeploy: TestingAwsCodeDeploy'
+      inputs:
+        awsCredentials: 'AWS Code Deploy'
+        regionName: 'us-east-1'
+        applicationName: TestingAwsCodeDeploy
+        deploymentGroupName: TestingAgain
+        revisionBundle: '$(System.DefaultWorkingDirectory)/aws/codedeploy/app'
+        bucketName: testingcodedeploy1245
+        fileExistsBehavior: OVERWRITE
 - stage: Destroy
   jobs:
   - job: DestroyApproval
