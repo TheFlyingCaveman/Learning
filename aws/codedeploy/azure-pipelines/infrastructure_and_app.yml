@@ -65,9 +65,10 @@ stages:
   jobs:
   - job: DestroyApproval
     pool: server
+    timeoutInMinutes: 5000
     steps:
     - task: ManualValidation@0
-      timeoutInMinutes: 1440 # task times out in 1 day
+      timeoutInMinutes: 4320
       inputs:
         notifyUsers: 'joshdan65@gmail.com'
         onTimeout: 'resume'
