@@ -4,7 +4,7 @@
 
 *If the badge immediately following this text is red, then the infrastructure and app have been destroyed*
 
-[![Custom badge](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fcustom-shields.vercel.app%2Fapi%2Fshield%2Fcodedeployexample.go)](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build?definitionId=3)
+[![Custom badge](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fbadges.joshuamiller.net%2Fapi%2Fshield%2Fcodedeployexample.go)](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build?definitionId=3)
 
 *The following badges may be invalid, as I typically tear down resources after I am done with them. The first is the app build, the second links to the site (only valid if badge above is green)*
 
