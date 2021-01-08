@@ -2,13 +2,13 @@
 
 # AWS Code Deploy - Full Sample
 
-*If the badge immediately following this text is green, then the infrastructure and app have been destroyed*
+*If the badge immediately following this text is red, then the infrastructure and app have been destroyed*
 
-[![Azure DevOps builds (stage)](https://img.shields.io/azure-devops/build/JoshuaTheMiller/PublicExamples/3?label=Destroy%20All%20Resources&stage=Destroy&style=flat-square)](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build?definitionId=3)
+[![Custom badge](https://img.shields.io/endpoint?style=flat-square&url=https%3A%2F%2Fcustom-shields.vercel.app%2Fapi%2Fshield%2Fcodedeployexample.go)](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build?definitionId=3)
 
 *The following badges may be invalid, as I typically tear down resources after I am done with them. The first is the app build, the second links to the site (only valid if badge above is NOT green)*
 
-[![Azure DevOps builds](https://img.shields.io/azure-devops/build/JoshuaTheMiller/PublicExamples/2?label=Application%20Deployment&style=flat-square)]((https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build/latest?definitionId=2&branchName=main)) [![Site Badge](https://img.shields.io/badge/Sample-Site-orange?style=flat-square)][loadBalancerLink]
+[![Azure DevOps builds](https://img.shields.io/azure-devops/build/JoshuaTheMiller/PublicExamples/2?label=Application%20Deployment&style=flat-square)](https://dev.azure.com/JoshuaTheMiller/PublicExamples/_build/latest?definitionId=2&branchName=main) [![Site Badge](https://img.shields.io/badge/Sample-Site-orange?style=flat-square)][loadBalancerLink]
 
 </div>
 
