@@ -19,6 +19,21 @@ variable "private_subnet" {
   }] 
 }
 
+variable "database_subnets" {
+  type = list(object({
+    cidr_block        = string,
+    availability_zone = string
+  }))
+  default = [{
+    cidr_block        = "172.31.0.0/20",
+    availability_zone = "us-east-1d"
+  },
+  {
+    cidr_block        = "172.31.16.0/20",
+    availability_zone = "us-east-1b"
+  }] 
+}
+
 variable "liquibaseDownloadUrl" {
   type    = string
   description = "A link to the Liquibase tar.gz"

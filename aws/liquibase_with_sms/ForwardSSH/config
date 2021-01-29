@@ -1,0 +1,5 @@
+# SSH over Session Manager
+
+host i-*
+
+ProxyCommand C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe "aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters portNumber=%p"

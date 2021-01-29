@@ -33,3 +33,23 @@ liquibase --url="jdbc:mysql://$url/$database" --driver=com.mysql.jdbc.Driver --c
 ## Controlling User Access
 
 * https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-restrict-access.html
+
+## Setting up MYSQL for PoC
+
+* https://revdb.io/2020/09/25/terraform-rds-mysql-example/
+
+## Commands after all is said and done
+
+```sh
+mysql --host "dbUrl" --user=user --password=hello_mysql
+```
+
+## MySQL Workbench over SSM
+
+* https://stackoverflow.com/questions/18551556/permission-denied-publickey-when-ssh-access-to-amazon-ec2-instance
+
+```sh
+ssh ec2-user@i-0d04b204f2e718bf6 -L 9999:liquibasetests.cvnrx2p94j5x.us-east-1.rds.amazonaws.com:3306 -i ./what.pem
+```
+
+From MySQL Workbench, connect to localhost:9999 (user and password is included in database.tf) 

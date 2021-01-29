@@ -66,6 +66,14 @@ resource "aws_route_table" "routetable" {
   }
 }
 
+resource "aws_default_route_table" "main" {
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+  default_route_table_id = aws_vpc.main.default_route_table_id
+}
+
 # The subnet does not have any route able for external internet access,
 # which is needed for SSM to work (unless a Private Connection is configured)
 resource "aws_route_table_association" "a" {
@@ -79,7 +87,21 @@ resource "aws_security_group" "private" {
   description = "LiquibasePrivate"
   vpc_id      = aws_vpc.main.id
 
-  ingress = []
+  ingress {
+    from_port   = "3306"
+    to_port     = "3306"
+    protocol    = "tcp"
+    description = "To allow for external things to connect and pass through to MYSQL"
+    cidr_blocks = [aws_vpc.main.cidr_block]
+  }
+
+  ingress {
+    from_port   = "22"
+    to_port     = "22"
+    protocol    = "tcp"
+    description = "To allow for external things to connect and pass through to MYSQL"
+    cidr_blocks = [aws_vpc.main.cidr_block]
+  }
 
   egress {
     from_port   = 0
@@ -156,7 +178,9 @@ resource "aws_instance" "liquibase" {
 
   iam_instance_profile = aws_iam_instance_profile.ssm.name
 
-  # user_data = file("start.sh")
+  key_name = module.key_pair.this_key_pair_key_name
+
+  user_data = file("start.sh")
 
   tags = {
     Name        = "LiquibaseDeployer"
