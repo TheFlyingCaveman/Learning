@@ -46,10 +46,11 @@ mysql --host "dbUrl" --user=user --password=hello_mysql
 
 ## MySQL Workbench over SSM
 
-* https://stackoverflow.com/questions/18551556/permission-denied-publickey-when-ssh-access-to-amazon-ec2-instance
+* [Super helpful article](https://www.techbeatly.com/2020/10/how-to-ssh-tunnel-through-aws-systems-manager-to-access-private-vpcresources.html#.YBN31nOSm70)
+* [Make sure the username for the EC2 instance is correct](https://stackoverflow.com/questions/18551556/permission-denied-publickey-when-ssh-access-to-amazon-ec2-instance)
 
 ```sh
-ssh ec2-user@i-0d04b204f2e718bf6 -L 9999:liquibasetests.cvnrx2p94j5x.us-east-1.rds.amazonaws.com:3306 -i ./what.pem
+ssh ec2-user@i-0d04b204f2e718bf6 -L 9999:liquibasetests.cvnrx2p94j5x.us-east-1.rds.amazonaws.com:3306 -i ./private_key.pem
 ```
 
 From MySQL Workbench, connect to localhost:9999 (user and password is included in database.tf) 
