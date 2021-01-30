@@ -15,15 +15,18 @@ https://github.com/JoshuaTheMiller/Experiments/tree/main/liquibase
 aws ssm start-session --target i-006554b3bb0e2a8ad
 # one time setup
 sudo amazon-linux-extras install java-openjdk11
+# We are initially in usr/bin
+sudo mkdir liq
+cd liq
 sudo wget https://github.com/liquibase/liquibase/releases/download/v4.2.2/liquibase-4.2.2.tar.gz
 sudo tar xvzf liquibase-4.2.2.tar.gz
 # for current session
-export PATH=$PATH:/usr/bin/liquibase
+export PATH=$PATH:/usr/bin/liq
 
 # download liquibase migration files
 # unzip
 
-url=""
+url="liquibasetests.cvnrx2p94j5x.us-east-1.rds.amazonaws.com:3306"
 database=""
 username="from environment vars"
 database="from environment vars"
