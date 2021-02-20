@@ -1,8 +1,13 @@
-FROM openjdk
+FROM ubuntu
 LABEL Author=JoshuaMiller
 
-ADD https://developer.garmin.com/downloads/connect-iq/sdk-manager/connectiq-sdk-manager-linux.zip  /
+# https://developer.garmin.com/downloads/connect-iq/sdks/sdks.json
+ARG SDK_VERSION=connectiq-sdk-lin-3.2.5-2021-02-12-6d31f4357.zip
 
-RUN apt-get update && \
-    apt-get install -y unzip --no-install-recommend && \
-    unzip connectiq-sdk-manager-linux.zip -d/ connectiq
+ADD https://developer.garmin.com/downloads/connect-iq/sdks/${SDK_VERSION} connectiq-sdk.zip
+
+RUN apt-get update
+
+RUN apt-get install -y unzip curl
+RUN unzip connectiq-sdk.zip -d /connectiq-sdk
+
