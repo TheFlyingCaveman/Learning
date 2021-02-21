@@ -1,0 +1,1 @@
+go run main.go token "C:/Users/joshu/Desktop/New folder (2)/bin"
