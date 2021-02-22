@@ -5,3 +5,7 @@
 * MonkeyC cli errors: https://forums.garmin.com/developer/connect-iq/f/discussion/167605/monkeyc-command-line-errors/909134#909134
 * SDK Manager Zip: https://developer.garmin.com/downloads/connect-iq/sdk-manager/connectiq-sdk-manager-linux.zip
 * Screenshot with Xvfb and some app: https://github.com/GregM/xvfb-screenshots
+
+
+
+* Debugging Command Line Issues: https://forums.garmin.com/developer/connect-iq/f/discussion/167605/monkeyc-command-line-errors
