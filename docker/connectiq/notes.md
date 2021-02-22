@@ -9,3 +9,7 @@
 
 
 * Debugging Command Line Issues: https://forums.garmin.com/developer/connect-iq/f/discussion/167605/monkeyc-command-line-errors
+
+## Commands
+
+monkeyc -o ./bin/app.prg -y dk -f monkey.jungle -w -d vivoactive
