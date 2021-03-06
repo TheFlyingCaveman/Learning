@@ -52,7 +52,7 @@ docker exec -it mysql1 mysql -uroot -p
 CREATE DATABASE liquibase;
 CREATE USER mysqldeployer;
 CREATE ROLE deployer;
-GRANT alter,create,delete,drop,index,insert,select,update,trigger,alter routine,create routine, execute, create temporary tables on *.* to 'deployer';
+GRANT alter,create,delete,drop,index,insert,select,update,trigger,alter routine,create routine, execute, references, create temporary tables on *.* to 'deployer';
 GRANT 'deployer' TO 'mysqldeployer';
 SET DEFAULT ROLE 'deployer' TO 'mysqldeployer';
 ```
