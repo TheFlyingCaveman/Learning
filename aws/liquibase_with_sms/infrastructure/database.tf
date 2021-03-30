@@ -57,13 +57,16 @@ resource "aws_db_instance" "db" {
   password               = "hello_mysql"
   identifier             = "liquibasetests"
   vpc_security_group_ids = [aws_security_group.db.id]
-  db_subnet_group_name   = aws_db_subnet_group.db.id  
+  db_subnet_group_name   = aws_db_subnet_group.db.id
 
   tags = {
     Name        = "LiquibaseDatabase"
     Environment = "PoC"
     Experiment  = "Liquibase"
   }
+
+  // TODO: WARNGING: DO NOT LEAVE THIS IN FOR PRODUCTION DATABASES!
+  skip_final_snapshot = true
 }
 
 output "database_endpoint" {

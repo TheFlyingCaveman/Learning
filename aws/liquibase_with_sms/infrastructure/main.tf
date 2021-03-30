@@ -196,4 +196,16 @@ resource "aws_instance" "liquibase" {
   vpc_security_group_ids = [
     aws_security_group.private.id
   ]
+
+  root_block_device {
+    encrypted = true
+  }
+
+  # ebs_block_device {
+  #   encrypted = true
+  # }
+}
+
+output "passthrough_instance_id" {
+  value = aws_instance.liquibase.id
 }
