@@ -1,3 +1,5 @@
+data "aws_availability_zones" "available" {}
+
 locals {
   service_name = "${var.app_name}-${var.environment}"
   standard_tags = {
@@ -5,6 +7,14 @@ locals {
     Environment = var.environment
     Application = var.app_name
   }
+  vpc_cidr_block              = "10.0.0.0/16"
+  count_of_availability_zones = length(data.aws_availability_zones.available.names)
+}
+
+resource "aws_cloudwatch_log_group" "ecs" {
+  name = local.service_name
+
+  tags = local.standard_tags
 }
 
 # resource "aws_iam_role" "api" {
@@ -39,14 +49,22 @@ resource "aws_route_table" "public" {
   tags = local.standard_tags
 }
 
-// have these be passed in to the module
-resource "aws_subnet" "main" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.0.0/24"
-  // To use public Docker Hub for learning
-  // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-configure-network.html
+resource "aws_subnet" "public" {
+  count                   = local.count_of_availability_zones
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.${10 + count.index}.0/24"
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = true
+  tags                    = local.standard_tags
+}
+
+resource "aws_subnet" "private" {
+  count                   = local.count_of_availability_zones
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.${20 + count.index}.0/24"
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = false
-  tags = local.standard_tags
+  tags                    = local.standard_tags
 }
 
 resource "aws_ecs_task_definition" "definition" {
@@ -57,8 +75,8 @@ resource "aws_ecs_task_definition" "definition" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.container_cpu_units
   memory                   = var.container_memory
-  tags = local.standard_tags
-  container_definitions = <<DEFINITION
+  tags                     = local.standard_tags
+  container_definitions    = <<DEFINITION
 [
   {
     "name": "${local.service_name}",
@@ -114,12 +132,12 @@ resource "aws_ecs_cluster" "api" {
   }
 }
 
-resource "aws_lb_target_group" "api" {
-  name     = local.service_name
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
-}
+# resource "aws_lb_target_group" "api" {
+#   name     = local.service_name
+#   port     = 80
+#   protocol = "HTTP"
+#   vpc_id   = aws_vpc.main.id
+# }
 
 resource "aws_ecs_service" "api" {
   name        = local.service_name
@@ -137,10 +155,12 @@ resource "aws_ecs_service" "api" {
   force_new_deployment = true
 
   network_configuration {
-    subnets = [
-      aws_subnet.main.id
-    ]
+    security_groups = [aws_security_group.ecs_tasks.id]
+    subnets         = aws_subnet.private.*.id
     // only because of learning at the moment
+    // and because of how subnets/routing is currently set up
+    // (docker images cannot be pulled due to the above w/o this
+    // being set to true)
     assign_public_ip = true
   }
 
@@ -149,25 +169,26 @@ resource "aws_ecs_service" "api" {
     rollback = true
   }
 
-  #   depends_on = [
-  #     aws_iam_role.api
-  #   ]
+  depends_on = [
+    #   aws_iam_role.api
+    aws_lb_listener.service
+  ]
 
   // We do not want to change the scale if auto-scaling has already occurred
   lifecycle {
     ignore_changes = [desired_count]
   }
 
+  load_balancer {
+    container_name   = local.service_name
+    container_port   = var.container_port
+    target_group_arn = aws_lb_target_group.main.arn
+  }
+
   #   ordered_placement_strategy {
   #     type  = "spread"
   #     field = "host"
   #   }
-
-  load_balancer {
-    container_name   = var.app_name
-    container_port   = var.container_port
-    target_group_arn = aws_lb_target_group.api.arn
-  }
 
   # look into this for serivce discovery?
   #   service_registries 
