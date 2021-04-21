@@ -3,7 +3,7 @@ terraform {
     organization = "aws-trfc"
 
     workspaces {
-      name = "bluegreen"
+      name = "rolling"
     }
   }
 }
