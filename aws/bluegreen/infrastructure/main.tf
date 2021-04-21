@@ -20,6 +20,7 @@ resource "aws_main_route_table_association" "a" {
   route_table_id = aws_route_table.public.id
 }
 
+// So we can access Docker for the docker image
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -53,15 +54,20 @@ resource "aws_ecs_task_definition" "definition" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.container_cpu_units
   memory                   = var.container_memory
+  tags                     = {}
   container_definitions    = <<DEFINITION
 [
   {
     "name": "${var.app_name}",
     "image": "${var.container_image}",
     "essential": true,        
+    "cpu": 0,
+    "mountPoints": [],    
+    "volumesFrom": [],
     "portMappings": [
       {
         "containerPort": ${var.container_port},
+        "hostPort": 80,
         "protocol": "tcp"
       }
     ],
@@ -118,6 +124,7 @@ resource "aws_ecs_service" "api" {
   #   health_check_grace_period_seconds = var.health_check_period
   #   iam_role                          = aws_iam_role.api.name
 
+  force_new_deployment = true
 
   network_configuration {
     subnets = [
