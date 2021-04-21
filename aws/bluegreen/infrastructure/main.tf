@@ -1,3 +1,12 @@
+locals {
+  service_name = "${var.app_name}-${var.environment}"
+  standard_tags = {
+    Name        = local.service_name
+    Environment = var.environment
+    Application = var.app_name
+  }
+}
+
 # resource "aws_iam_role" "api" {
 #   name = "ecs_role_${var.app_name}_${var.environment}"
 # }
@@ -9,9 +18,7 @@ resource "aws_vpc" "main" {
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name = "main"
-  }
+  tags = local.standard_tags
 }
 
 
@@ -29,9 +36,7 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  tags = {
-    Name = "example"
-  }
+  tags = local.standard_tags
 }
 
 // have these be passed in to the module
@@ -41,24 +46,22 @@ resource "aws_subnet" "main" {
   // To use public Docker Hub for learning
   // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-configure-network.html
   map_public_ip_on_launch = false
-  tags = {
-    Name = "For testing ecs things"
-  }
+  tags = local.standard_tags
 }
 
 resource "aws_ecs_task_definition" "definition" {
-  family       = var.app_name
+  family       = local.service_name
   network_mode = "awsvpc"
   #   task_role_arn            = aws_iam_role.api.arn
   #   execution_role_arn       = aws_iam_role.api.arn
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.container_cpu_units
   memory                   = var.container_memory
-  tags                     = {}
-  container_definitions    = <<DEFINITION
+  tags = local.standard_tags
+  container_definitions = <<DEFINITION
 [
   {
-    "name": "${var.app_name}",
+    "name": "${local.service_name}",
     "image": "${var.container_image}",
     "essential": true,        
     "cpu": 0,
@@ -103,7 +106,7 @@ DEFINITION
 }
 
 resource "aws_ecs_cluster" "api" {
-  name               = var.app_name
+  name               = local.service_name
   capacity_providers = ["FARGATE", "FARGATE_SPOT"]
   setting {
     name  = "containerInsights"
@@ -111,8 +114,15 @@ resource "aws_ecs_cluster" "api" {
   }
 }
 
+resource "aws_lb_target_group" "api" {
+  name     = local.service_name
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+}
+
 resource "aws_ecs_service" "api" {
-  name        = var.app_name
+  name        = local.service_name
   launch_type = "FARGATE"
 
   cluster = aws_ecs_cluster.api.id
@@ -147,16 +157,17 @@ resource "aws_ecs_service" "api" {
   lifecycle {
     ignore_changes = [desired_count]
   }
+
   #   ordered_placement_strategy {
   #     type  = "spread"
   #     field = "host"
   #   }
 
-  # load_balancer {
-  #   container_name   = var.app_name
-  #   container_port   = var.container_port
-  #   target_group_arn = aws_lb_target_group.api.arn
-  # }
+  load_balancer {
+    container_name   = var.app_name
+    container_port   = var.container_port
+    target_group_arn = aws_lb_target_group.api.arn
+  }
 
   # look into this for serivce discovery?
   #   service_registries 
