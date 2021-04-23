@@ -13,9 +13,14 @@ variable "environment" {
   default = "nonprod"
 }
 
-variable "container_image" {
+variable "ecr_repo_name" {
   type    = string
-  default = "trfc/simpleweb:latest"
+  default = "simpleweb"
+}
+
+variable "image_tag" {
+  type    = string
+  default = "latest"
 }
 
 variable "container_port" {
@@ -25,7 +30,7 @@ variable "container_port" {
 
 variable "application_version" {
   type    = string
-  default = "0"
+  default = "2"
 }
 
 variable "container_cpu_units" {
@@ -40,7 +45,7 @@ variable "container_memory" {
 
 variable "desired_count" {
   type    = number
-  default = 3
+  default = 1
 }
 
 variable "health_check_period" {

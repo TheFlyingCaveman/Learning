@@ -55,7 +55,11 @@ resource "aws_subnet" "public" {
   cidr_block              = "10.0.${10 + count.index}.0/24"
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
-  tags                    = local.standard_tags
+  tags = merge(
+    local.standard_tags,
+    {
+      Name = "${local.service_name}-public"
+  })
 }
 
 resource "aws_subnet" "private" {
@@ -64,14 +68,65 @@ resource "aws_subnet" "private" {
   cidr_block              = "10.0.${20 + count.index}.0/24"
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = false
-  tags                    = local.standard_tags
+  tags = merge(
+    local.standard_tags,
+    {
+      Name = "${local.service_name}-private"
+  })
+}
+
+data "aws_ecr_repository" "service" {
+  name = var.ecr_repo_name
+}
+
+resource "aws_iam_role" "execution" {
+  name = "${local.service_name}-ecs-execution"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = local.standard_tags
+}
+
+resource "aws_iam_role_policy" "test_policy" {
+  name = "${local.service_name}-ecs-execution-policy"
+  role = aws_iam_role.execution.id
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource" : "*"
+      }
+    ]
+  })
 }
 
 resource "aws_ecs_task_definition" "definition" {
   family       = local.service_name
   network_mode = "awsvpc"
   #   task_role_arn            = aws_iam_role.api.arn
-  #   execution_role_arn       = aws_iam_role.api.arn
+  execution_role_arn       = aws_iam_role.execution.arn
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.container_cpu_units
   memory                   = var.container_memory
@@ -80,8 +135,8 @@ resource "aws_ecs_task_definition" "definition" {
 [
   {
     "name": "${local.service_name}",
-    "image": "${var.container_image}",
-    "essential": true,        
+    "image": "${data.aws_ecr_repository.service.repository_url}:${var.image_tag}",
+    "essential": true,     
     "cpu": 0,
     "mountPoints": [],    
     "volumesFrom": [],
@@ -155,13 +210,9 @@ resource "aws_ecs_service" "api" {
   force_new_deployment = true
 
   network_configuration {
-    security_groups = [aws_security_group.ecs_tasks.id]
-    subnets         = aws_subnet.private.*.id
-    // only because of learning at the moment
-    // and because of how subnets/routing is currently set up
-    // (docker images cannot be pulled due to the above w/o this
-    // being set to true)
-    assign_public_ip = true
+    security_groups  = [aws_security_group.ecs_tasks.id]
+    subnets          = aws_subnet.private.*.id
+    assign_public_ip = false
   }
 
   deployment_circuit_breaker {

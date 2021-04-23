@@ -48,7 +48,7 @@ resource "aws_security_group" "ecs_tasks" {
 
 resource "aws_lb" "main" {
   name               = local.service_name
-  subnets            = aws_subnet.public.*.id
+  subnets            = aws_subnet.private.*.id
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb.id]
 
