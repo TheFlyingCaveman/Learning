@@ -61,8 +61,13 @@ resource "aws_lb_listener" "service" {
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.main.arn
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 
@@ -84,8 +89,7 @@ resource "aws_lb_target_group" "main" {
   }
 }
 
-module "pretty_domain" {
-  count  = var.pretty_domain == null ? 0 : 1
+module "pretty_domain" {  
   source = "./pretty_domain"
 
   aws_route53_zone_name   = var.pretty_domain.aws_route53_zone_name
