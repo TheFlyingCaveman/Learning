@@ -71,7 +71,7 @@ resource "aws_security_group" "from_ecs_tasks" {
     from_port   = 443
     to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
-    # security_groups = [aws_security_group.ecs_tasks.id]
+    security_groups = [aws_security_group.ecs_tasks.id]
   }
 
   egress {
