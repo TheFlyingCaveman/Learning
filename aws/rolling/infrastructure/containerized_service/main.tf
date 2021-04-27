@@ -57,6 +57,7 @@ DEFINITION
 resource "aws_ecs_service" "api" {
   name        = local.service_name
   launch_type = "FARGATE"
+  tags        = var.standard_tags
 
   cluster = aws_ecs_cluster.api.id
 
@@ -82,13 +83,16 @@ resource "aws_ecs_service" "api" {
 
   // We do not want to change the scale if auto-scaling has already occurred
   lifecycle {
-    ignore_changes = [desired_count]
+    ignore_changes        = [desired_count]    
   }
 
-  load_balancer {
-    container_name   = local.service_name
-    container_port   = var.container_port
-    target_group_arn = var.lb_target_group_arn
+  dynamic "load_balancer" {
+    for_each = local.hasLoadBalancer
+    content {
+      container_name   = local.service_name
+      container_port   = var.container_port
+      target_group_arn = var.lb_target_group_arn
+    }
   }
 
   #   ordered_placement_strategy {

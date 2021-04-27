@@ -54,6 +54,8 @@ variable "health_check_period" {
 
 variable "lb_target_group_arn" {
     type = string
+    default = null
+    description = "Associates a load balancer with the ECS Service. Note that updating this after initial creation forces replacement, which will incur downtime."
 }
 
 variable "security_group_ids" {
