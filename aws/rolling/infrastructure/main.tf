@@ -33,6 +33,15 @@ resource "aws_cloudwatch_log_group" "ecs" {
 #   ]
 # }
 
+resource "aws_ecs_cluster" "shared" {
+  name               = "ServiceA-NonProd"
+  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
+
 module "exposed_containerized_service" {
   source = "./modules/exposed_containerized_service"
 
@@ -45,4 +54,5 @@ module "exposed_containerized_service" {
   private_subnet_ids = aws_subnet.private.*.id
   pretty_domain      = var.pretty_domain
   vpc_id             = aws_vpc.main.id
+  ecs_cluster_id     = aws_ecs_cluster.shared.id
 }

@@ -1,5 +1,5 @@
 locals {
-    distinct_security_group_ids = distinct(concat([aws_security_group.ecs_tasks.id], var.additional_ecs_task_security_group_ids))
+  distinct_security_group_ids = distinct(concat([aws_security_group.ecs_tasks.id], var.additional_ecs_task_security_group_ids))
 }
 
 module "containerized_service" {
@@ -19,6 +19,7 @@ module "containerized_service" {
   lb_target_group_arn = aws_lb_target_group.main.arn
   security_group_ids  = local.distinct_security_group_ids
   private_subnet_ids  = var.private_subnet_ids
+  ecs_cluster_id      = var.ecs_cluster_id
 
   depends_on = [
     #   aws_iam_role.api    

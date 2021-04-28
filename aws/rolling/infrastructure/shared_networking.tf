@@ -61,6 +61,10 @@ data "aws_ecr_repository" "service" {
   name = var.ecr_repo_name
 }
 
+locals {
+  distinct_security_groups_from_ecs_tasks = distinct(concat(module.exposed_containerized_service.ecs_security_group_ids, module.exposed_containerized_service2.ecs_security_group_ids))
+}
+
 resource "aws_security_group" "from_ecs_tasks" {
   name        = "${local.service_name}-from-ecs-tasks"
   description = "Allow inbound access from ECS"
@@ -72,7 +76,7 @@ resource "aws_security_group" "from_ecs_tasks" {
     to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
     # security_groups = [aws_security_group.ecs_tasks.id]
-    security_groups = module.exposed_containerized_service.ecs_security_group_ids
+    security_groups = local.distinct_security_groups_from_ecs_tasks
   }
 
   egress {

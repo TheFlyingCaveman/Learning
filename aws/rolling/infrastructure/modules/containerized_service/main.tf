@@ -59,7 +59,7 @@ resource "aws_ecs_service" "api" {
   launch_type = "FARGATE"
   tags        = var.standard_tags
 
-  cluster = aws_ecs_cluster.api.id
+  cluster = var.ecs_cluster_id
 
   task_definition = aws_ecs_task_definition.definition.arn
 
@@ -83,7 +83,7 @@ resource "aws_ecs_service" "api" {
 
   // We do not want to change the scale if auto-scaling has already occurred
   lifecycle {
-    ignore_changes        = [desired_count]    
+    ignore_changes = [desired_count]
   }
 
   dynamic "load_balancer" {
@@ -102,13 +102,4 @@ resource "aws_ecs_service" "api" {
 
   # look into this for serivce discovery?
   #   service_registries 
-}
-
-resource "aws_ecs_cluster" "api" {
-  name               = local.service_name
-  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
-  }
 }

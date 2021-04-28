@@ -66,3 +66,7 @@ variable "security_group_ids" {
 variable "private_subnet_ids" {
   type = list(string)
 }
+
+variable "ecs_cluster_id" {
+  type = string
+}

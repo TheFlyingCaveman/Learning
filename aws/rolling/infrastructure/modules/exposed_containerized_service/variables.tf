@@ -77,3 +77,7 @@ variable "pretty_domain" {
 variable "vpc_id" {
   type = string
 }
+
+variable "ecs_cluster_id" {
+  type = string
+}
