@@ -40,7 +40,8 @@ variable "container_memory" {
 
 variable "desired_count" {
   type    = number
-  default = 1
+  default = 2
+  description = "The amount of containers to run at initial launch. Defaults to 2 to allow for multiple availability zones."
 }
 
 variable "health_check_period" {

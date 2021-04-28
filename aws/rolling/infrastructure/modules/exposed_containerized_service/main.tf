@@ -1,3 +1,7 @@
+locals {
+    distinct_security_group_ids = distinct(concat([aws_security_group.ecs_tasks.id], var.additional_ecs_task_security_group_ids))
+}
+
 module "containerized_service" {
   source = "../containerized_service"
 

@@ -18,7 +18,3 @@ resource "aws_security_group" "ecs_tasks" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-locals {
-    distinct_security_group_ids = distinct(concat([aws_security_group.ecs_tasks.id], var.additional_ecs_task_security_group_ids))
-}

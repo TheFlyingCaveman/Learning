@@ -45,7 +45,7 @@ variable "container_memory" {
 
 variable "desired_count" {
   type    = number
-  default = 1
+  default = 2
 }
 
 variable "health_check_period" {
