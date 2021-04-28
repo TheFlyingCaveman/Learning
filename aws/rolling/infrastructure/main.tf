@@ -16,7 +16,7 @@ resource "aws_cloudwatch_log_group" "ecs" {
 }
 
 module "containerized_service" {
-  source = "./containerized_service"
+  source = "./modules/containerized_service"
 
   execution_role_arn  = aws_iam_role.execution.arn
   image_url_with_tag  = "${data.aws_ecr_repository.service.repository_url}:${var.image_tag}"

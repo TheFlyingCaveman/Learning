@@ -90,7 +90,7 @@ resource "aws_lb_target_group" "main" {
 }
 
 module "pretty_domain" {  
-  source = "./pretty_domain"
+  source = "./modules/pretty_domain"
 
   aws_route53_zone_name   = var.pretty_domain.aws_route53_zone_name
   aws_route53_record_name = var.pretty_domain.aws_route53_record_name
