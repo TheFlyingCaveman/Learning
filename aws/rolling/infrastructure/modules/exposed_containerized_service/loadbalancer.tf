@@ -1,7 +1,7 @@
 resource "aws_security_group" "lb" {
   name        = "${local.service_name}-lb"
   description = "controls access to the Application Load Balancer (ALB)"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
 
   ingress {
     protocol    = "tcp"
@@ -25,34 +25,13 @@ resource "aws_security_group" "lb" {
   }
 }
 
-resource "aws_security_group" "ecs_tasks" {
-  name        = "${local.service_name}-ecs"
-  description = "allow inbound access from the ALB only"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    protocol        = "tcp"
-    from_port       = 80
-    to_port         = 80
-    cidr_blocks     = ["0.0.0.0/0"]
-    security_groups = [aws_security_group.lb.id]
-  }
-
-  egress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
 resource "aws_lb" "main" {
   name               = local.service_name
-  subnets            = aws_subnet.private.*.id
+  subnets            = var.private_subnet_ids
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb.id]
 
-  tags = local.standard_tags
+  tags = var.standard_tags
 }
 
 resource "aws_lb_listener" "service" {
@@ -73,9 +52,9 @@ resource "aws_lb_listener" "service" {
 
 resource "aws_lb_target_group" "main" {
   name        = local.service_name
-  port        = 80
+  port        = var.container_port
   protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = var.vpc_id
   target_type = "ip"
 
   health_check {
@@ -89,8 +68,8 @@ resource "aws_lb_target_group" "main" {
   }
 }
 
-module "pretty_domain" {  
-  source = "./modules/pretty_domain"
+module "pretty_domain" {
+  source = "../pretty_domain"
 
   aws_route53_zone_name   = var.pretty_domain.aws_route53_zone_name
   aws_route53_record_name = var.pretty_domain.aws_route53_record_name

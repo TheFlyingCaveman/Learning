@@ -15,20 +15,34 @@ resource "aws_cloudwatch_log_group" "ecs" {
   tags = local.standard_tags
 }
 
-module "containerized_service" {
-  source = "./modules/containerized_service"
+# module "containerized_service" {
+#   source = "./modules/containerized_service"
 
-  execution_role_arn  = aws_iam_role.execution.arn
-  image_url_with_tag  = "${data.aws_ecr_repository.service.repository_url}:${var.image_tag}"
-  app_name            = "ServiceA"
-  environment         = "NonProd"
-  standard_tags       = local.standard_tags
-  lb_target_group_arn = aws_lb_target_group.main.arn
-  security_group_ids  = [aws_security_group.ecs_tasks.id]
-  private_subnet_ids  = aws_subnet.private.*.id
+#   execution_role_arn  = aws_iam_role.execution.arn
+#   image_url_with_tag  = "${data.aws_ecr_repository.service.repository_url}:${var.image_tag}"
+#   app_name            = "ServiceA"
+#   environment         = "NonProd"
+#   standard_tags       = local.standard_tags
+#   lb_target_group_arn = aws_lb_target_group.main.arn
+#   security_group_ids  = [aws_security_group.ecs_tasks.id]
+#   private_subnet_ids  = aws_subnet.private.*.id
 
-  depends_on = [
-    #   aws_iam_role.api    
-    aws_lb_listener.service
-  ]
+#   depends_on = [
+#     #   aws_iam_role.api    
+#     aws_lb_listener.service
+#   ]
+# }
+
+module "exposed_containerized_service" {
+  source = "./modules/exposed_containerized_service"
+
+  execution_role_arn = aws_iam_role.execution.arn
+  image_url_with_tag = "${data.aws_ecr_repository.service.repository_url}:${var.image_tag}"
+  app_name           = "ServiceA"
+  environment        = "NonProd"
+  standard_tags      = local.standard_tags
+  # additional_ecs_task_security_group_ids = [aws_security_group.ecs_tasks.id]
+  private_subnet_ids = aws_subnet.private.*.id
+  pretty_domain      = var.pretty_domain
+  vpc_id             = aws_vpc.main.id
 }
