@@ -70,3 +70,7 @@ variable "private_subnet_ids" {
 variable "ecs_cluster_id" {
   type = string
 }
+
+variable "private_dns_namespace_id" {
+  type = string
+}

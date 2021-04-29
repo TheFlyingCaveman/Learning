@@ -81,3 +81,7 @@ variable "vpc_id" {
 variable "ecs_cluster_id" {
   type = string
 }
+
+variable "private_dns_namespace_id" {
+  type = string
+}

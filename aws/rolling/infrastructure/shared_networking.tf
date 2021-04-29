@@ -62,7 +62,7 @@ data "aws_ecr_repository" "service" {
 }
 
 locals {
-  distinct_security_groups_from_ecs_tasks = distinct(concat(module.exposed_containerized_service.ecs_security_group_ids))
+  distinct_security_groups_from_ecs_tasks = distinct(concat(module.containerized_service.ecs_security_group_ids))
 }
 
 resource "aws_security_group" "from_ecs_tasks" {
@@ -185,4 +185,10 @@ resource "aws_vpc_endpoint" "ssm" {
     {
       Name = "${local.service_name}-ssm"
   })
+}
+
+resource "aws_service_discovery_private_dns_namespace" "main" {
+  name = "${local.shared_service_name}-namespace"
+  vpc  = aws_vpc.main.id
+  tags = local.standard_tags
 }

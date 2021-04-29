@@ -54,6 +54,27 @@ resource "aws_ecs_task_definition" "definition" {
 DEFINITION
 }
 
+resource "aws_service_discovery_service" "main" {
+  name = var.app_name
+
+  dns_config {
+    namespace_id = var.private_dns_namespace_id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+
+  tags = var.standard_tags
+}
+
 resource "aws_ecs_service" "api" {
   name        = local.service_name
   launch_type = "FARGATE"
@@ -100,6 +121,8 @@ resource "aws_ecs_service" "api" {
   #     field = "host"
   #   }
 
-  # look into this for serivce discovery?
-  #   service_registries 
+  service_registries {
+    registry_arn   = aws_service_discovery_service.main.arn
+    container_name = var.app_name
+  }
 }
