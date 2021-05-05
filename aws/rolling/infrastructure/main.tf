@@ -61,16 +61,32 @@ resource "aws_security_group" "shared" {
   }
 }
 
-module "containerized_service" {
-  source = "./modules/containerized_service"
+# module "containerized_service" {
+#   source = "./modules/containerized_service"
 
-  execution_role_arn       = aws_iam_role.execution.arn
-  image_url_with_tag       = "${data.aws_ecr_repository.service.repository_url}:${var.image_tag}"
-  app_name                 = "ServiceA"
-  environment              = "NonProd"
-  standard_tags            = local.standard_tags
-  security_group_ids       = [aws_security_group.shared.id]
+#   execution_role_arn       = aws_iam_role.execution.arn
+#   image_url_with_tag       = "${data.aws_ecr_repository.service.repository_url}:${var.image_tag}"
+#   app_name                 = "ServiceA"
+#   environment              = "NonProd"
+#   standard_tags            = local.standard_tags
+#   security_group_ids       = [aws_security_group.shared.id]
+#   private_subnet_ids       = aws_subnet.private.*.id
+#   ecs_cluster_id           = aws_ecs_cluster.shared.id
+#   private_dns_namespace_id = aws_service_discovery_private_dns_namespace.main.id
+# }
+
+module "service_a" {
+  source = "./modules/internal_containerized_service"
+
+  execution_role_arn = aws_iam_role.execution.arn
+  image_url_with_tag = "${data.aws_ecr_repository.service.repository_url}:${var.image_tag}"
+  app_name           = "ServiceA"
+  environment        = "NonProd"
+  standard_tags      = local.standard_tags
+  # additional_ecs_task_security_group_ids = [aws_security_group.ecs_tasks.id]
   private_subnet_ids       = aws_subnet.private.*.id
+  pretty_domain            = var.pretty_domain
+  vpc_id                   = aws_vpc.main.id
   ecs_cluster_id           = aws_ecs_cluster.shared.id
   private_dns_namespace_id = aws_service_discovery_private_dns_namespace.main.id
 }

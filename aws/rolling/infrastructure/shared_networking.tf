@@ -62,7 +62,7 @@ data "aws_ecr_repository" "service" {
 }
 
 locals {
-  distinct_security_groups_from_ecs_tasks = distinct(concat(module.containerized_service.ecs_security_group_ids))
+  distinct_security_groups_from_ecs_tasks = distinct(concat(module.service_a.ecs_security_group_ids))
 }
 
 resource "aws_security_group" "from_ecs_tasks" {
