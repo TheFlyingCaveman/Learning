@@ -40,7 +40,7 @@ resource "aws_subnet" "public" {
   tags = merge(
     local.standard_tags,
     {
-      Name = "${local.service_name}-public"
+      Name = "${local.product_name}-public"
   })
 }
 
@@ -53,12 +53,8 @@ resource "aws_subnet" "private" {
   tags = merge(
     local.standard_tags,
     {
-      Name = "${local.service_name}-private"
+      Name = "${local.product_name}-private"
   })
-}
-
-data "aws_ecr_repository" "service" {
-  name = var.ecr_repo_name
 }
 
 locals {
@@ -66,7 +62,7 @@ locals {
 }
 
 resource "aws_security_group" "from_ecs_tasks" {
-  name        = "${local.service_name}-from-ecs-tasks"
+  name        = "${local.product_name}-from-ecs-tasks"
   description = "Allow inbound access from ECS"
   vpc_id      = aws_vpc.main.id
 
@@ -105,7 +101,7 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   tags = merge(
     local.standard_tags,
     {
-      Name = "${local.service_name}-ecr-dkr"
+      Name = "${local.product_name}-ecr-dkr"
   })
 }
 
@@ -127,7 +123,7 @@ resource "aws_vpc_endpoint" "ecr_api" {
   tags = merge(
     local.standard_tags,
     {
-      Name = "${local.service_name}-ecr-api"
+      Name = "${local.product_name}-ecr-api"
   })
 }
 
@@ -143,7 +139,7 @@ resource "aws_vpc_endpoint" "s3" {
   tags = merge(
     local.standard_tags,
     {
-      Name = "${local.service_name}-s3"
+      Name = "${local.product_name}-s3"
   })
 }
 
@@ -163,7 +159,7 @@ resource "aws_vpc_endpoint" "logs" {
   tags = merge(
     local.standard_tags,
     {
-      Name = "${local.service_name}-logs"
+      Name = "${local.product_name}-logs"
   })
 }
 
@@ -183,12 +179,12 @@ resource "aws_vpc_endpoint" "ssm" {
   tags = merge(
     local.standard_tags,
     {
-      Name = "${local.service_name}-ssm"
+      Name = "${local.product_name}-ssm"
   })
 }
 
 resource "aws_service_discovery_private_dns_namespace" "main" {
-  name = "${local.shared_service_name}-namespace"
+  name = local.product_name
   vpc  = aws_vpc.main.id
   tags = local.standard_tags
 }

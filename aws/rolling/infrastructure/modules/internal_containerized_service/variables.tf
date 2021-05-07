@@ -65,15 +65,6 @@ variable "private_subnet_ids" {
   type = list(string)
 }
 
-variable "pretty_domain" {
-  type = object({
-    aws_route53_zone_name : string
-    aws_route53_record_name : string
-  })
-  description = "If set, a new A record that points at the load balancer is added to the specified AWS DNS zone."
-  default     = null
-}
-
 variable "vpc_id" {
   type = string
 }
