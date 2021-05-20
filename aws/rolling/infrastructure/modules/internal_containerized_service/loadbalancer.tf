@@ -1,6 +1,6 @@
-resource "aws_security_group" "lb" {
-  name        = "${local.service_name}-lb"
-  description = "controls access to the Application Load Balancer (ALB)"
+resource "aws_security_group" "vpc_link" {
+  name        = "${local.service_name}-vpc-link"
+  description = "To allow traffic from VPC Link"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -15,6 +15,59 @@ resource "aws_security_group" "lb" {
     from_port   = 443
     to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# data "aws_vpc_endpoint_service" "vpc_link" {
+#   service = "vpc-link"
+# }
+
+# data "aws_subnet_ids" "supported_subnets" {
+#   vpc_id = var.vpc_id
+
+#   filter {
+#     name   = "subnet-id"
+#     values = var.private_subnet_ids
+#   }
+
+#   filter {
+#     name   = "availability-zone"
+#     values = data.aws_vpc_endpoint_service.vpc_link.availability_zones
+#   }
+# }
+
+# resource "aws_apigatewayv2_vpc_link" "main" {
+#   name               = local.service_name
+#   security_group_ids = [aws_security_group.vpc_link.id]
+#   subnet_ids         = data.aws_subnet_ids.supported_subnets.ids
+
+#   tags = var.standard_tags
+# }
+
+resource "aws_security_group" "lb" {
+  name        = "${local.service_name}-lb"
+  description = "controls access to the Application Load Balancer (ALB)"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    protocol        = "tcp"
+    from_port       = 80
+    to_port         = 80
+    security_groups = [aws_security_group.vpc_link.id]
+  }
+
+  ingress {
+    protocol        = "tcp"
+    from_port       = 443
+    to_port         = 443
+    security_groups = [aws_security_group.vpc_link.id]
   }
 
   egress {
@@ -73,7 +126,7 @@ resource "aws_lb_target_group" "main" {
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = "80"
-  protocol          = "HTTP"    
+  protocol          = "HTTP"
 
   default_action {
     type             = "forward"
