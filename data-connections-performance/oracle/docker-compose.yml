@@ -1,0 +1,9 @@
+services:
+  service:
+    build: ./api/
+    ports:
+      - "5000:5000"
+    links:
+      - oracle
+  oracle:
+    image: wnameless/oracle-xe-11g-r2
