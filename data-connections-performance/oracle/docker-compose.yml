@@ -1,9 +1,13 @@
+version: "3"
 services:
-  service:
-    build: ./api/
-    ports:
-      - "5000:5000"
-    links:
-      - oracle
+  # web:
+  #   build: api
+  #   ports:
+  #     - "5000:5000"
+  #   links:
+  #     - oracle
   oracle:
-    image: wnameless/oracle-xe-11g-r2
+    build: database
+    ports:
+    - "49161:1521"
+    - "8080:8080"
