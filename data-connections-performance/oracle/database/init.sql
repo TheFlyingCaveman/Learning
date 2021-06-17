@@ -6,3 +6,5 @@ CREATE TABLE stuff(
 
 INSERT INTO stuff
     VALUES (1, 'SomeItem');
+INSERT INTO stuff
+    VALUES (2, 'Some Other Item');
